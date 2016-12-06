@@ -1,0 +1,628 @@
+{% extends "staff/header.html" %}
+{% block content %}
+<div class="container-fluid">
+    <div id="roleOptions" class="row">
+        <div class="col-md-6 "><button id="viewCoursesBtn" class="btn btn-default btn-block btn-lg active" aria-pressed="true">View Available Courses</button></div>
+        <div class="col-md-6 "><button id="viewEnrollmentBtn" class="btn btn-primary btn-block btn-lg active" aria-pressed="true">My Enrollment</button></div>
+    </div>
+    
+    <div id="viewCourses" class="row">
+        <h3 style="text-align: center;"><b>All Courses</b></h3>
+        <div id="courseList">
+            <form id='filterByForm' class="form-inline">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label for="theFilter">Filter by:</label>
+                        <select class="form-control" id="theCategories" value='' name="category">
+                            <option>All Categories</option>
+                        </select>
+                        <br>
+                        <p>Notice: Click for details</p>
+                        <div id="courseFilteredList"></div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div id="courseDetails"></div>
+    </div>
+    <div id="viewEnrollment" class="row">
+        <h3 style="text-align: center;"><b>My Enrollments</b></h3>
+        <div id="enrollmentList"></div>
+        <div id="enrollmentDetails"></div>
+        <div id="viewModules">
+            <div id="viewModulesHeader"></div>
+            <ul id="moduleList" style='list-style-type: none'></ul>
+            <div id="proceedBtnDiv" style='margin-left: 40px'></div>
+            <div id="viewComponents">
+                <div id="viewComponentsHeader"></div>
+                <ul id="componentList" style='list-style-type: none'></ul>
+                    <div id="componentContent" style='margin-left: 40px'></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    
+    //*********************************
+    // INITIAL STATE
+    //*********************************
+
+    var thisCourse; //CS100 examples
+    var thisCourse_id; //integer id in db
+    var thisUsername;
+    var thisModule;
+    var thisModuleId1;
+    var progress;
+    var numModules;
+    var latestRel;
+    var latestRel1;
+    $(document).ready(function() {
+        $.ajax({
+            url: 'http://localhost:8000/staff/'+getCookie('staffId')+'/getStaffUsername',
+            type: 'GET',
+            dataType: 'json',
+            success(result, status, xhr) {
+                thisUsername = result.username;
+            }
+        });
+        loadEnrollment(); 
+        $('#viewCourses').hide();
+        $('#viewModules').hide();
+        $('#proceedBtnDiv').hide();
+        $('#viewComponents').hide();
+        $('#viewEnrollment').show();
+        $("#enrollmentDetails").hide();
+        $("#enrollmentList").show();
+    });
+
+
+    //load categories for filtering
+    $.ajax({
+        url: 'http://localhost:8000/courses/categories',
+        type: 'GET',
+        dataType: 'json',
+        success(result,status,xhr) {    
+            $.each(result.all_categories, function(index, value) {
+                $('select[name=category]').append("<option value='" + value.name + "'>" + value.name + "</option>");          
+            });
+        }
+    });
+
+    //*********************************
+    // PAGE CONTROL LOGIC
+    //*********************************
+
+    $('#viewCoursesBtn').on('click',function(){
+        $('#viewModules').hide();
+        $('#proceedBtnDiv').hide();
+        $("#viewCoursesBtn").attr('class', 'btn btn-primary btn-block btn-lg');
+        $("#viewEnrollmentBtn").attr('class','btn btn-block btn-lg');
+        $('#viewEnrollment').hide();
+        $('#viewCourses').show();
+        $('#courseDetails').hide();
+        $('#courseList').show(); 
+        loadCourses();
+    });
+
+    $('#viewEnrollmentBtn').on('click',function(){
+        $('#viewModules').hide();
+        $('#proceedBtnDiv').hide();
+        $('#viewComponents').hide();
+        $("#viewCoursesBtn").attr('class', 'btn btn-block btn-lg');
+        $("#viewEnrollmentBtn").attr('class','btn btn-primary btn-block btn-lg');
+        $('#viewCourses').hide();
+        $('#viewEnrollment').show();
+        $("#enrollmentDetails").hide();
+        $("#enrollmentList").show();
+        loadEnrollment();
+    });
+
+    /*$('#enrollmentHistBtn').on('click',function(){
+        $('#viewCourses').hide();
+        $('#viewEnrollment').hide();
+        $("#enrollmentDetails").hide();
+        $("#enrollmentList").hide();
+        $("#viewHistory").show();
+        //loadEnrollment();
+    });*/
+
+    $('#enrollmentList').on('click', 'a', function() {
+        $('#viewModules').show();
+        $("#enrollmentList").hide();
+        $("#enrollmentDetails").show();
+        thisCourse = $(this).attr('rel');
+        progress = $(this).attr('ral');
+        $.ajax({
+            url: 'http://localhost:8000/courses/'+thisCourse,
+            type: 'GET',
+            dataType: 'json',
+            success(result,status,xhr) {    
+                numModules = result.module_count;
+            }
+        });
+        loadEnrollmentDetails();
+        loadModules();
+    });
+
+    $('#courseList').on('click', 'a', function() {
+        //$('#viewHistory').hide();
+        $("#courseList").hide();
+        $("#courseDetails").show();
+        thisCourse = $(this).attr('rel');
+        thisCourse_id = $(this).attr('ral');
+        viewCourseDetails();
+    });
+
+    //reload courses when the category filter is changed
+     $('#courseList').on('change', 'select', function() {
+        loadCourses();
+     });
+
+    //adds event listener to module list
+    $('#moduleList').on('click','li a',function() {
+        $('#componentList').empty();
+        $("#proceedBtnDiv").empty();
+        thisModule = $(this).attr('rel');
+        thisModuleId1 = $(this).attr('relId');
+        loadComponents();
+        if(progress == numModules) {
+            $("#proceedBtnDiv").empty();
+            $("componentList").show();
+        }
+        $('#viewModules').show();
+        $('#viewComponents').show();
+    });
+
+    $('#proceedBtnDiv').on('click', 'button',function () {
+        if (progress < numModules) {
+            progress++;
+            $('#viewComponents').hide();
+            $('#componentList').hide();
+            $('#componentContent').hide();
+            $(this).hide();
+            updateCourseProgress();
+        }
+        else {
+            progress = 0;
+        }
+    });
+
+    //*********************************
+    // VIEW ENROLLMENT
+    //*********************************
+
+    //load all course enrollments
+    function loadEnrollment() {
+        var theCourseCode;
+        $.ajax({
+            url: 'http://localhost:8000/staff/' + getCookie('staffId') + '/enrolled',
+            type: 'GET',
+            dataType: 'json',
+            success(result,status,xhr){
+                $("#enrollmentList").empty();
+                var htmlCode = "";
+                $("#enrollmentList").append("<table><thead><td><p style='font-size:20px; color:black'><b>Non-Current Enrollments</b></p></td></thead>");
+                var emptyCheck = true;
+                $.each(result.course_list, function(index, value) {
+                    if(!value.isCompleted || value.isRetaking) {
+                        htmlCode = "<table><thead><col width='350'><col width='50'><td><p style='font-size:20px; color:black'><b>Current Enrollments</b></p></td><td></td></thead><tbody><td><p><a href='#' rel='" + value.courseCode + "' ral='" + value.progress + "'><b>" + value.courseCode + ": " + value.title + "</b></a><br> Progress: " + value.progress + " modules completed</p></td>" + "<td><button type='button' class='btn btn-danger'rel='" + value.courseCode + "' ral='" + value.progress + "'>Drop Course</button></td></tbody></table>"+ htmlCode;
+                    } else {
+                        $("#enrollmentList").append("<tbody><td><p><a href='#' rel='" + value.courseCode + "' ral='" + value.progress + "'><b>" + value.courseCode + ": " + value.title + "</b></a><br> Progress: " + value.progress + " modules completed</p></td></tbody>");
+                        emptyCheck = false;
+                    }
+                });
+                $("#enrollmentList").append("</table>");
+                if (emptyCheck == true) {
+                    $("#enrollmentList").append("No completed course");
+                }
+                if (htmlCode == ""){
+                    htmlCode = "<table><thead><col width='350'><col width='50'><td><p style='font-size:20px; color:black'><b>Current Enrollments</b></p></td><td></td></thead><tbody><td>Not enrolled in any course</td>" + "<td></td></tbody></table>"
+                }
+                $("#enrollmentList").prepend(htmlCode+"<br>");
+            }
+        });
+    }
+
+    //view details of an enrolled course, including its components and modules
+    function loadModules() {
+        $.ajax({
+            url: 'http://localhost:8000/courses/' + thisCourse,
+            type: 'GET',
+            aysnc: false,
+            dataType: 'json',
+            success(result,status,xhr) {
+                $('#componentList').empty();
+        		$('#componentContent').empty();
+                $("#moduleList").empty();
+                $("#viewModulesHeader").empty();
+
+                $("#viewModulesHeader").append("<br><h4><b>Course Modules</b></h4>");
+                var count = 0;
+                $.each(result.modules, function(index, value) {
+                    if (count <= progress) {
+                        $('#moduleList').append("<li id='"+value.id+"'><a href='#' rel='" + value.sequenceNumber + "' relId='" + value.id + "''><b>Module " + value.sequenceNumber + " : " + value.moduleTitle + "</b> - " + value.component_count + " components</a><div id='" + value.id + "'></div></li>");
+                        count++;
+                        latestRel = value.id;
+                    }
+                });
+            }
+        });
+    }
+
+    function loadEnrollmentDetails() {
+        $.ajax({
+            url: 'http://localhost:8000/courses/' + thisCourse,
+            type: 'GET',
+            dataType: 'json',
+            success(result,status,xhr) {
+                $("#enrollmentDetails").empty();
+                $("#enrollmentDetails").append("<h3><b><u>Course Info</u></b></h3>");
+                $("#enrollmentDetails").append("<p><b>" + result.courseCode + ": " + result.title + "</b><br><b>Category: </b>" + result.category_name + "<br><b>Instructor: </b>" + result.instructor_info.username + "<br><b>Description: </b>" + result.description + "<br><b>Number of Modules: </b>" + result.module_count + "</p>");
+            }
+        });
+    }
+
+
+
+    function loadComponents() {
+        $('#componentList').empty();
+        $('#viewComponentsHeader').empty();
+        $('#componentContent').empty();
+        $('#viewComponentsHeader').append("<br><h4><b>Course Module Content</b></h4>");
+
+        var flagC; //if the course is completed
+        var flagD; //if the course is retaken
+        $.ajax({
+            url: 'http://localhost:8000/staff/'+getCookie('staffId')+'/enrolled',
+            async: false, //Changing this to sync doesn't avoid duplication problem
+            dataType: 'json',
+            success(result, status, xhr) {
+                $.each(result.course_list, function(index, value) {
+                    if(thisCourse == value.courseCode) {
+                        flagC = value.isCompleted;
+                        flagD = value.isRetaking;
+                    }
+                });
+            }
+        });
+        $.ajax({
+            url: 'http://localhost:8000/courses/' + thisCourse,
+            async: false,
+            type: 'GET', //MAKING THIS REQUEST ASYNC BLOCKS THE DISPLAY OF COMPONENTS FOR SOME REASON
+            dataType: 'json',
+            success(result,status,xhr) {
+
+                $.each(result.modules, function(index, value) {
+
+                    if(value.component_count == 0 && value.sequenceNumber == thisModule) {
+                        if((flagC == flagD) && (value.sequenceNumber == thisModule)) {
+
+                            if(value.id == latestRel) {
+	                            $('#proceedBtnDiv').empty();
+	                            $('#proceedBtnDiv').show();
+	                            $('#proceedBtnDiv').append("<button rel='" + value.id + "' type='button' class='btn btn-primary'>Complete Module</button>");
+	                            //return false;
+                        	}
+                        }
+
+                    }
+                    else {
+                        if (value.sequenceNumber == thisModule) {
+                            if(flagC == flagD) {
+                            	if(value.id == latestRel) {
+                                $('#proceedBtnDiv').empty();
+                                $('#proceedBtnDiv').show();
+                                $('#proceedBtnDiv').append("<button rel='" + value.id + "' type='button' class='btn btn-primary'>Complete Module</button>");
+                            	}
+                            }
+                            $.each(value.components, function(index, data) {
+                                $('#componentList').append("<li id='"+data.contentType+"|"+data.id+"'><a href='#' rel='" + data.order + "' relOrder='" + data.order + "' ral='" + data.contentType + "'><b>Component " + data.order + " : " + data.contentTitle + "</b></a><div id='" + data.id + "'></div></li>");
+                            });
+                        }
+                    }
+                });
+            },
+            complete: function() {
+            	$('#componentList').show();
+
+            }
+        });
+
+    }
+    //display component content
+    $('#componentList').on('click','li a', function() {
+
+        var thisComponent = $(this).attr('rel');
+        var thisComponentOrder = $(this).attr('relOrder');
+        var contentType = $(this).attr('ral');
+
+        $.ajax({
+            url: 'http://localhost:8000/courses/' + thisCourse,
+            type: 'GET',
+            dataType: 'json',
+            success(result,status,xhr) {
+                $('#componentContent').empty();
+                $.each(result.modules, function(index, value) {
+
+                    if (value['id'] == thisModuleId1) {
+                        $.each(value.components, function(index, data) {
+
+                            if(data['order'] == thisComponentOrder) {
+                                $("#componentContent").append("<br><h4 style='text-align:left;'><b>Component Selected: "+data.contentTitle+"</b></h4>");
+                                if (contentType == 'text')
+                                    $('#componentContent').append("<p>" + data.content + "</p>");
+                                else if (contentType == 'image') {
+                                    $('#componentContent').append("<img width='50%' src='http://127.0.0.1:8000/uploads/" + data.content + "' class='img-responsive' style='text-align:center'>");
+                                }
+                                else if (contentType == 'video')
+                                    $('#componentContent').append("<div style='text-align:center'><iframe width='896' height='504' src='" + data.content + "' frameborder='0' allowfullscreen></iframe></div>");
+                                else if (contentType == 'file')
+                                    $('#componentContent').append("<a href='http://127.0.0.1:8000/uploads/" + data.content + "' download>Download File</a>");
+                                    
+                            }
+                        });
+
+                    }
+
+                });
+            }
+        });
+        $("#componentContent").show();
+    });    
+
+    function updateCourseProgress(){
+        var course_id = $.ajax({
+            url: "http://localhost:8000/courses/" + thisCourse,
+            type: 'GET',
+            dataType: 'json',
+            success(result,status,xhr) {
+
+                $.ajax({
+                    url: "http://localhost:8000/courses/update_course_progress",
+                    type: 'POST',
+                    data: JSON.stringify({
+                        course_id : result.id,
+                        staff_id : getCookie('staffId'),
+                        new_status : progress
+                    }),
+                    dataType: 'json',
+                    beforeSend(xhr){
+                        xhr.setRequestHeader("Content-Type","application/x-www-urlencoded");
+                    },
+                    success(data,status,xhr) {
+                        if (data.hasOwnProperty('failure'))
+                            alert(result.message);
+                        else {
+                            //marked
+                            loadModules();
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+    //drop a course    
+    $('#enrollmentList').on('click', 'button', function () {
+        var cf = confirm('Please confirm that you would like to drop this course.');
+        if (cf) {
+            var progress = $(this).attr('ral');
+            var course_id = $.ajax({
+                url: "http://localhost:8000/courses/" + $(this).attr('rel'),
+                type: 'GET',
+                dataType: 'json',
+                success(result,status,xhr) {
+                    $.ajax({
+                        url: "http://localhost:8000/courses/drop_course",
+                        type: 'POST',
+                        data: JSON.stringify({
+                            course_id : result.id,
+                            staff_id : getCookie('staffId'),
+                            new_status : progress
+                        }),
+                        dataType: 'json',
+                        beforeSend(xhr){
+                            xhr.setRequestHeader("Content-Type","application/x-www-urlencoded");
+                        },
+                        success(data,status,xhr) {
+                            if (data.hasOwnProperty('failure'))
+                                alert(result.message);
+                            else
+                                loadEnrollment();
+                        }
+                    });
+                }
+            });
+        }
+    });
+
+    //*********************************
+    // VIEW ALL COURSES
+    //*********************************
+
+    //load all courses
+    function loadCourses() {
+        var completedCoursesIDs = [];
+        var createdCourses = [];
+        $.ajax({
+            url: 'http://localhost:8000/staff/'+thisUsername+'/courseCompleted',
+            async: false,
+            type: 'GET',
+            dataType: 'json',
+            success(result, status, xhr) {
+                $.each(result.completed_enrolls, function(index,value){
+                    completedCoursesIDs[index] = value.id;
+                });
+            }
+        });
+        $.ajax({
+            url: 'http://localhost:8000/staff/'+getCookie('staffId')+'/courselist_instructor',
+            async: false,
+            type: 'GET',
+            dataType: 'json',
+            success(result, status, xhr) {
+                $.each(result.course_list, function(index,value){
+                    createdCourses[index] = value.courseCode;
+                });
+            }
+        });
+        var emptyCheck = true;
+        $.ajax({
+            url: 'http://localhost:8000/courses/',
+            type: 'GET',
+            dataType: 'json',
+            success(result,status,xhr) {
+                $('#courseFilteredList').empty();               
+                $.each(result.all_courses, function(index, value) {
+                    if(value.isPublished) {
+                        if($('select[name=category]').val() === 'All Categories') {
+                            if($.inArray(value.id, completedCoursesIDs) != -1) //display completed tag if completed
+                                $("#courseFilteredList").append("<p><a href='#' rel='" + value.courseCode + "' ral='"+ value.id+"'>" + value.courseCode + ": " + value.title + "</a><span class=\"tag tag-success myTag-success\" style='margin-left:3px'>Completed!</span><br> Category: " + value.category_name + "</p>");
+                            else{ //display enrollable tag if enrollable
+                                if($.inArray(value.courseCode, createdCourses) != -1)
+                                    $("#courseFilteredList").append("<p><a href='#' rel='" + value.courseCode + "' ral='"+ value.id+"'>" + value.courseCode + ": " + value.title + "</a><span class=\"tag myTag-owned\">Owned</span><br> Category: " + value.category_name + "</p>");
+                                else
+                                    $("#courseFilteredList").append("<p><a href='#' rel='" + value.courseCode + "' ral='"+ value.id+"'>" + value.courseCode + ": " + value.title + "</a><span class=\"tag myTag-enrollable\" style='margin-left:3px'>Enrollable!</span><br> Category: " + value.category_name + "</p>");      
+                            }
+
+                        }
+                        else {
+                            if ($('select[name=category]').val() == '')
+                                $("#courseFilteredList").append("<p><a href='#' rel='" + value.courseCode + "' ral='"+ value.id+"'>" + value.courseCode + ": " + value.title + "</a><br>"); // <-- This case never occurs?
+                            else if ($('select[name=category]').val() == value.category_name)  {
+                                if($.inArray(value.id, completedCoursesIDs) != -1) //display completed tag if completed
+                                    $("#courseFilteredList").append("<p><a href='#' rel='" + value.courseCode + "' ral='"+ value.id+"'>" + value.courseCode + ": " + value.title + "</a><span class=\"tag tag-success myTag-success\" style='margin-left:3px'>Completed!</span><br> Category: " + value.category_name + "</p>");
+                                else{ //display enrollable tag if enrollable
+                                    if($.inArray(value.courseCode, createdCourses) != -1)
+                                        $("#courseFilteredList").append("<p><a href='#' rel='" + value.courseCode + "' ral='"+ value.id+"'>" + value.courseCode + ": " + value.title + "</a><span class=\"tag myTag-owned\">Owned</span><br> Category: " + value.category_name + "</p>");
+                                    else
+                                        $("#courseFilteredList").append("<p><a href='#' rel='" + value.courseCode + "' ral='"+ value.id+"'>" + value.courseCode + ": " + value.title + "</a><span class=\"tag myTag-enrollable\" style='margin-left:3px'>Enrollable!</span><br> Category: " + value.category_name + "</p>");      
+                                }
+                            }
+                        }
+                    }
+                                   
+                });
+                if ($('#courseFilteredList').is(':empty')) {
+                    $('#courseFilteredList').append("No available course")
+                }
+            }
+        });
+    }
+
+    //view course details
+    function viewCourseDetails() {
+        var arrayCourses = [];
+        var flag;
+        var flagB; // for isRetaking
+        var i;
+        var createdCourses = [];
+        $.ajax({
+            url: 'http://localhost:8000/staff/'+getCookie('staffId')+'/courselist_instructor',
+            async: false,
+            type: 'GET',
+            dataType: 'json',
+            success(result, status, xhr) {
+                $.each(result.course_list, function(index,value){
+                    createdCourses[index] = value.courseCode;
+                });
+            }
+        });
+        $.ajax({
+            url: 'http://localhost:8000/staff/' + getCookie('staffId') + '/enrolled',
+            async: false,
+            type: 'GET',
+            dataType: 'json',
+            success(result,status,xhr){
+                $("#enrollmentList").empty();
+                $.each(result.course_list, function(index, value) {
+                    arrayCourses[index] = value;
+                });
+                for (i = 0; i < arrayCourses.length; i++) {
+                    if(arrayCourses[i].courseCode === thisCourse) {
+                        (arrayCourses[i].isCompleted ? flag = true : flag = false);
+                    }
+                    if(arrayCourses[i].courseCode === thisCourse) {
+                        (arrayCourses[i].isRetaking? flagB = true : flagB = false);
+                    }
+                }
+            }
+        });
+        $.ajax({
+            url: 'http://localhost:8000/courses/' + thisCourse,
+            type: 'GET',
+            dataType: 'json',
+            success(result,status,xhr) {
+                $("#courseDetails").empty();
+                $("#courseDetails").append("<p><b>" + result.courseCode + ": " + result.title + "</b><br>Category: " + result.category_name + "<br>Instructor: " + result.instructor_info.username + "<br>Description: " + result.description + "<br>Number of Modules: " + result.module_count + "</p>");
+                if(!flag){
+                    if($.inArray(result.courseCode, createdCourses) != -1)
+                       $("#courseDetails").append("<button name='disabledBtn' type='button' class='btn btn-primary disabled' rel='" + result.courseCode + "'>Enroll</button>");
+                    else
+                        $("#courseDetails").append("<button name='enrollBtn' type='button' class='btn btn-primary' rel='" + result.courseCode + "'>Enroll</button>");
+                }
+                else {
+                    if(!flagB)
+                       $("#courseDetails").append("<button name='retakeBtn' class='btn btn-primary' style=\"background: #2CD453; border-color: #2CD453\" rel='" + result.courseCode + "'>Retake</button>");
+                    else
+                        $("#courseDetails").append("<button name='disabledBtn' class='btn btn-primary disabled' style=\"background: #2CD453; border-color: #2CD453\" rel='" + result.courseCode + "'>Retake</button>");
+
+                }
+            }
+        });
+
+    }
+
+    //enroll or retake a course
+    $('#courseDetails').on('click', 'button', function () {
+
+        var whichButton = $('#courseDetails button').attr("name");
+        //In the case of enroll
+        if(whichButton === 'enrollBtn') {
+            var cf = confirm('Please confirm that you would like to enroll in this course.');
+            if (cf) {
+                $.ajax({
+                    url: "http://localhost:8000/courses/" + $(this).attr('rel') + "/enroll",
+                    type: 'POST',
+                    data: JSON.stringify({staff_id : getCookie('staffId')}),
+                    dataType: 'json',
+                    beforeSend(xhr){
+                        xhr.setRequestHeader("Content-Type","application/x-www-urlencoded");
+                    },
+                    success(result,status,xhr) {
+                        if (result.hasOwnProperty('failure'))
+                            alert(result.message);
+                        else
+                            window.location.reload();
+                    }
+                });
+            }
+        }//Case of retake
+        else if (whichButton === 'retakeBtn') {
+            var cf = confirm('Please confirm that you would like to retake this course.');
+            if (cf) {
+                $.ajax({
+                    url: "http://localhost:8000/courses/retake_course",
+                    type: 'POST',
+                    data: JSON.stringify({
+                        course_id : thisCourse_id, 
+                        staff_id : getCookie('staffId')}),
+                    dataType: 'json',
+                    beforeSend(xhr){
+                        xhr.setRequestHeader("Content-Type","application/x-www-urlencoded");
+                    },
+                    success(result,status,xhr) {
+                        if (result.hasOwnProperty('failure'))
+                            alert(result.message);
+                        else
+                            window.location.reload();
+                    }
+                });
+            }
+        }
+        
+    });
+</script>
+
+{% endblock %}

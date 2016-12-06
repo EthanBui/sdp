@@ -1,0 +1,931 @@
+{% extends "staff/header.html" %}
+{% block content %}
+<div class="container-fluid">
+    <div id="viewCourses">
+        <h3 style='text-align:center'><b>My Courses</b></h3>
+        <div id="courseList"></div>
+        <br>
+        <div id="roleOptions" class="row">
+            <div class="col-md-6"><button id="addCourseButton" class="btn btn-primary btn-block btn-lg">Add Course</button></div>
+            <div class="col-md-6"><button id="updateCourseButton" class="btn btn-block btn-lg">Update Course Information</button></div>
+        </div>
+        <div id="addCourseFormHolder">
+            <h3 style="text-align: center;"><b>Add a Courses</b></h3>
+            <form id="addCourseForm">
+                <div class="container-fluid">
+                    <div class="form-group">
+                        <label for="theCoursecode">Course Code</label>
+                        <input class="form-control" type="text" id="theCoursecode" name="courseCode" placeholder="Please enter Course Code">
+                    </div>
+                    <div class="form-group">
+                    <label for="theCategory">Category</label>
+                        <select class="form-control" name='category' id="theCategory"><option value='' selected>All Categories</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="theTitle">Title</label>
+                        <input class="form-control" name='title' placeholder="Enter Course Title" id="theTitle">
+                    </div>
+                    <div class="form-group">
+                        <label for="theDesc">Description</label>
+                        <textarea class="form-control" rows='4' type="text" name="description" id="theDesc"></textarea>
+                    </div>
+                    <input type="button" value='Add Course' class="btn btn-default" onclick="addCourse()">
+                </div>
+            </form>
+        </div>
+        
+        <div id="updateCourseFormHolder">
+            <h3 id="updateCourseFormHeader" style='text-align:center'><b>Update Course Information</b></h3>
+            <form id="updateCourseForm">
+                <div class="container-fluid">
+                    <input class="form-control" type="hidden" id="oldCourseCode" name="oldCourseCode">
+                    <div class="form-group">
+                        <label for="theCoursecode">Updated Course Code</label>
+                        <input class="form-control" type="text" id="theCoursecode" name="courseCode" placeholder="Please enter Course Code">
+                    </div>
+                    <div class="form-group">
+                        <label for="theCategory">Updated Category</label>
+                        <select class="form-control" name='category' id="theCategory"><option value='' selected>All Categories</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="theTitle">Updated Title</label>
+                        <input class="form-control" name='title' placeholder="Enter Course Title" id="theTitle">
+                    </div>
+                    <div class="form-group">
+                        <label for="theDesc">Updated Description</label>
+                        <textarea class="form-control" rows='4' type="text" name="description" id="theDesc"></textarea>
+                    </div>
+                    <input type="button" value='Update Course' class="btn btn-default" onclick="updateCourse()">
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="viewModules">
+        <h3 style="text-align: center"><b><a class='backToCourse' href='#'>Courses</a> | Modules</b></h3>
+        <h4 style="text-align: left"><b>Module List</b></h4>
+        <ul class='sortable' id="moduleList" style='list-style-type: none'></ul>
+        <br>
+        <div id="roleOptions" class="row">
+            <div class="col-md-4"><button id="addModuleButton" class="btn btn-primary btn-block btn-lg">Add Module</button></div>
+            <div class="col-md-4"><button id="updateModuleButton" class="btn btn-block btn-lg">Update Module Information</button></div>
+            <div class="col-md-4"><button id="removeModuleButton" class="btn btn-block btn-lg">Remove Module</button></div>
+        </div>
+        <div id="addModuleFormHolder">
+            <h3 style="text-align: center"><b>Add Module</b></h3>
+            <form id="addModuleForm">
+                <div class="container-fluid">
+                    <div class="form-group">
+                        <label for="theSeqNum">Module Number:</label>
+                        <input type="text" class="form-control" name="sequenceNumber" placeholder="Enter Module Sequence Number">
+                    </div>
+                    <div class="form-group">
+                        <label for="theModuleTitle">Module Title:</label>
+                        <input type="text" class="form-control" name="moduleTitle" placeholder="Enter Module Title" id="theModuleTitle">
+                    </div>
+                        <input type="button" class="btn btn-default" value='Add Module' onclick="addModule()">
+                </div>
+            </form>
+        </div>
+        
+        <div id="updateModuleFormHolder">
+            <h3 style="text-align: center"><b>Update Module</b></h3>
+            <form id="updateModule">
+                <div class="container-fluid">
+                    <div class="form-group">
+                        <label for="theModuleNum">Module Number:</label>
+                        <input type="text" class="form-control" name="moduleNumber" placeholder="Enter Module Number" id="theModuleNum">
+                    </div>
+                    <div class="form-group">
+                        <label for="theModuleTitle">Module Title:</label>
+                        <input type="text" class="form-control" name="moduleTitle" placeholder="Enter Module Title" id="theModuleTitle">
+                    </div>
+                        <input type="button" class="btn btn-default" value='Update Module' onclick="updateModule()">
+                </div>
+            </form>
+        </div>
+
+        <div id="removeModuleFormHolder">
+            <h3 style="text-align: center"><b>Remove Module</b></h3>
+            <form id="removeModule">
+                <div class="container-fluid">
+                    <div class="form-group">
+                        <label for="theModuleNum">Module Number:</label>
+                        <input type="text" class="form-control" name="moduleNumber" placeholder="Enter Module Number" id="theModuleNum">
+                    </div>
+                        <input type="button" class="btn btn-danger" value='Remove Module' onclick="removeModule()">
+                </div>
+            </form>
+        </div>
+
+    </div>
+
+    <div id="viewComponents">
+        <h3 style="text-align:center"><b><a class='backToCourse' href='#'>Courses</a> | <a class='backToModule' href='#'>Modules</a> | Components</b></h3>
+        <h4 style="text-align:left"><b>Component List</b></h4>
+        <ul class='sortable' id="componentList" style='list-style-type: none'></ul>
+        
+        <div id='componentContent' style="margin-left: 40px;"></div>
+
+        <br>
+        <div id="roleOptions" class="row">
+            <div class="col-md-6"><button id="addComponentButton" class="btn btn-primary btn-block btn-lg">Add Component</button></div>
+            <div class="col-md-6"><button id="updateComponentButton" class="btn btn-block btn-lg">Update Component</button></div>
+        </div>
+        
+        <div id="addComponentFormHolder">
+            <h3 id="addComponentFormHolderHeader" style="text-align:center"><b>Add Component</b></h3>
+            <form id="addComponentForm">
+                <div class="container-fluid">
+                    <div class="form-group">
+                        <label for="theOrder">Component Number:</label>
+                        <input type="text" class="form-control" name="order" placeholder="Enter Component Order" id="theOrder">
+                    </div>
+                    <div class="form-group">
+                        <label for="theContentType">Content Type:</label>
+                        <select class="form-control" name="contentType"><option value='text'>Text</option><option value='image'>Image</option><option value='file'>File</option><option value='video'>Video</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="theContentTitle">Content Title:</label>
+                        <input type="text" class="form-control" name="contentTitle" placeholder="Enter Content Title" id="theContentTitle">
+                    </div>
+                    <div id='textContent' class="form-group">
+                        <label for="theContent">Text Content:</label>
+                        <textarea class="form-control" rows='4' type="text" name="content" id="theContent"></textarea>
+                    </div>
+                    <div id='videoInput' class='form-group'>
+                        <label for="videoUrl">Video URL</label>
+                        <input type="text" class="form-control" name="url" placeholder="Enter Video URL" id='videoUrl'>
+                    </div>
+                    <div id='uploadField' class="form-group">
+                        <label for="fileUpload">File Upload:</label>
+                        <input name='upload' type="file">
+                    </div>
+                    <div id="addComponentFormButton">
+                        <input type="button" class="btn btn-default" value='Add Component' onclick="addComponent()">
+                    </div>
+                    <div id="updateComponentFormButton">
+                        <input type="button" class="btn btn-default" value='Update Component' onclick="updateComponent()">
+                    </div>
+                </div>
+            </form>
+        </div>
+
+    </div>
+
+</div>
+
+<script type="text/javascript">
+
+    //*********************************
+    // INITIAL STATE
+    //*********************************
+
+    var thisCourse;
+    var thisModule;
+    var thisModuleId;
+    $('#viewModules').hide();
+    $('#viewComponents').hide();
+    $('#viewCourses').show();
+    loadCourses();
+
+    $('#addCourseFormHolder').show();
+    $('#updateCourseFormHolder').hide();
+
+    $('#uploadField').hide();
+    $('#videoInput').hide();
+    $('#textContent').show();
+
+    //load categories for course creation form
+    $.ajax({
+        url: 'http://localhost:8000/courses/categories',
+        type: 'GET',
+        dataType: 'json',
+        success(result,status,xhr) {
+            $.each(result.all_categories, function(index, value) {
+                $('select[name=category]').append("<option value='" + value.name + "'>" + value.name + "</option>");
+            });
+        }
+    });
+
+    //*********************************
+    // PAGE CONTROL LOGIC
+    //*********************************
+
+    $('a.backToCourse').click(function() {
+        $('#viewModules').hide();
+        $('#viewComponents').hide();
+        $('#viewCourses').show();
+        $('#addCourseButton').attr('class', 'btn btn-primary btn-block btn-lg');
+        $('#updateCourseButton').attr('class', 'btn btn-block btn-lg');
+        $('#addCourseFormHolder').show();
+        $('#updateCourseFormHolder').hide();
+
+    });
+
+    $('a.backToModule').click(function() {
+        $('#viewComponents').hide();
+        $('#viewCourses').hide();
+        $('#viewModules').show();
+        loadModules();
+        
+        // $('#addModuleButton').attr('class', 'btn btn-primary btn-block btn-lg');
+        // $('#updateModuleButton').attr('class', 'btn btn-block btn-lg');
+        // $('#removeModuleButton').attr('class', 'btn btn-block btn-lg');
+        // $('#addModuleFormHolder').show();
+        // $('#updateModuleFormHolder').hide();
+        // $('#removeModuleFormHolder').hide();
+    });
+
+    $("#viewCourses").on('click','a',function(){
+        $('#viewComponents').hide();
+        $('#viewCourses').hide();
+        thisCourse = $(this).attr('rel');
+        loadModules();
+        $('#viewModules').show();
+        $('#addCourseFormHolder').hide();
+        $('#updateCourseFormHolder').hide();
+
+        $('#addModuleButton').attr('class', 'btn btn-primary btn-block btn-lg');
+        $('#updateModuleButton').attr('class', 'btn btn-block btn-lg');
+        $('#removeModuleButton').attr('class', 'btn btn-block btn-lg');
+        $('#addModuleFormHolder').show();
+        $('#updateModuleFormHolder').hide();
+        $('#removeModuleFormHolder').hide();
+
+        if ( $(this).attr('isPublished') == 'true' ){
+            $('#addModuleButton').attr('class', 'btn btn-block btn-lg');
+            document.getElementById("addModuleButton").disabled = true;
+            document.getElementById("updateModuleButton").disabled = true;
+            document.getElementById("removeModuleButton").disabled = true;
+            $('#addModuleFormHolder').hide();
+        } else {
+            $('#addModuleButton').attr('class', 'btn btn-primary btn-block btn-lg');
+            document.getElementById("addModuleButton").disabled = false;
+            document.getElementById("updateModuleButton").disabled = false;
+            document.getElementById("removeModuleButton").disabled = false;
+        }
+    });
+
+    $('#viewModules').on('click','li a',function() {
+        $('#viewModules').hide();
+        $('#viewCourses').hide();
+        thisModule = $(this).attr('rel');
+        thisModuleId = $(this).attr('relId');
+        loadComponents();
+        $('#viewComponents').show();
+        $('#addCourseFormHolder').hide();
+        $('#updateCourseFormHolder').hide();
+        $('#addComponentButton').attr('class', 'btn btn-primary btn-block btn-lg');
+        $('#updateComponentButton').attr('class', 'btn btn-block btn-lg');
+        $('#addComponentFormHolderHeader').html("<b>Add Component</b>");
+        $('#addComponentFormButton').show();
+        $('#updateComponentFormButton').hide();
+    });
+
+    $('#addComponentForm').on('change', 'select', function() {
+        $('#uploadField input').val('');
+        if ($('#addComponentForm select').val() == 'text') {
+            $('#uploadField').hide();
+            $('#videoInput').hide();
+            $('#textContent').show();
+        } else if ($('#addComponentForm select').val() == 'video') {
+            $('#uploadField').hide();      
+            $('#textContent').hide();
+            $('#videoInput').show();
+        } else {
+            $('#textContent').hide();
+            $('#videoInput').hide();
+            $('#uploadField').show();
+        }
+    });
+
+    //*********************************
+    // View Course Page Buttons Logic
+    //*********************************
+    $('#addCourseButton').on('click',function(){
+        $('#addCourseButton').attr('class', 'btn btn-primary btn-block btn-lg');
+        $('#updateCourseButton').attr('class', 'btn btn-block btn-lg');
+        $('#addCourseFormHolder').show();
+        $('#updateCourseFormHolder').hide();
+    });
+    // $('#updateCourseButton').on('click',function(){
+    //     $('#updateCourseButton').attr('class', 'btn btn-primary btn-block btn-lg');
+    //     $('#addCourseButton').attr('class', 'btn btn-block btn-lg');
+    //     $('#updateCourseFormHolder').show();
+    //     $('#addCourseFormHolder').hide();
+    // });
+
+    //*********************************
+    // View Module Page Buttons Logic
+    //*********************************
+    $('#addModuleButton').on('click',function(){
+        $('#addModuleButton').attr('class', 'btn btn-primary btn-block btn-lg');
+        $('#updateModuleButton').attr('class', 'btn btn-block btn-lg');
+        $('#removeModuleButton').attr('class', 'btn btn-block btn-lg');
+        $('#addModuleFormHolder').show();
+        $('#updateModuleFormHolder').hide();
+        $('#removeModuleFormHolder').hide();
+    });
+    $('#updateModuleButton').on('click',function(){
+        $('#addModuleButton').attr('class', 'btn btn-block btn-lg');
+        $('#updateModuleButton').attr('class', 'btn btn-primary btn-block btn-lg');
+        $('#removeModuleButton').attr('class', 'btn btn-block btn-lg');
+        $('#addModuleFormHolder').hide();
+        $('#updateModuleFormHolder').show();
+        $('#removeModuleFormHolder').hide();
+    });
+    $('#removeModuleButton').on('click',function(){
+        $('#addModuleButton').attr('class', 'btn btn-block btn-lg');
+        $('#updateModuleButton').attr('class', 'btn btn-block btn-lg');
+        $('#removeModuleButton').attr('class', 'btn btn-primary btn-block btn-lg');
+        $('#addModuleFormHolder').hide();
+        $('#updateModuleFormHolder').hide();
+        $('#removeModuleFormHolder').show();
+    });
+
+    //*********************************
+    // View Component Page Buttons Logic
+    //*********************************
+    $('#addComponentButton').on('click',function(){
+        $('#addComponentButton').attr('class', 'btn btn-primary btn-block btn-lg');
+        $('#updateComponentButton').attr('class', 'btn btn-block btn-lg');
+        $('#addComponentFormHolderHeader').html("<b>Add Component</b>");
+        $('#addComponentFormButton').show();
+        $('#updateComponentFormButton').hide();
+    });
+    $('#updateComponentButton').on('click',function(){
+        $('#addComponentButton').attr('class', 'btn btn-block btn-lg');
+        $('#updateComponentButton').attr('class', 'btn btn-primary btn-block btn-lg');
+        $('#addComponentFormHolderHeader').html("<b>Update Component</b>");
+        $('#addComponentFormButton').hide();
+        $('#updateComponentFormButton').show();
+    });
+
+
+    //*********************************
+    // VIEW COURSES
+    //*********************************
+
+    //load all courses created by this instructor
+    function loadCourses() {
+        $.ajax({
+            url: 'http://localhost:8000/staff/' + getCookie('staffId') + '/courselist_instructor',
+            type: 'GET',
+            dataType: 'json',
+            success(result,status,xhr) {
+                $("#courseList").empty();
+                var tableCode = "";
+                var emptyCheck = true;
+                tableCode = "<table><thead><col width='350'><col width='50'><col width='50'><col width='50'><td><p style='font-size:18px; color:black'><b>My Course List</b></p></td><td></td><td></td><td></td></thead>"
+                $.each(result.course_list, function(index, value) {
+                    tableCode = tableCode + "<tbody><td><p><a href='#' rel='" + value.courseCode + "' isPublished='"+value.isPublished+"'><b>" + value.courseCode + ": " + value.title + "</b></a><br><b>Category: </b>" + value.category + "<br><b>Description: </b>" + value.description + '</p></td>';
+                    if(!value.isPublished) {
+                        tableCode = tableCode + "<td><button class='publish btn btn-primary' rel='" + value.courseCode + "' type='button'>Publish</button></td>";
+                        tableCode = tableCode + "<td><button class='remove btn btn-danger' rel='" + value.courseCode + "' type='button' style='margin-left:5px'>Remove</button></td>";
+                        tableCode = tableCode + "<td><button class='retake btn btn-danger' rel='" + value.courseCode + "' title='"+value.title+"' category='"+value.category+"' description='"+value.description+"' type='button' style='margin-left:5px;background-color:green;border: 2px solid green'>Update</button></td></tbody>";
+                    } else {
+                        tableCode = tableCode + "<td></td>";
+                        tableCode = tableCode + "<td></td>";
+                        tableCode = tableCode + "<td></td></tbody>";
+                    }
+                    emptyCheck = false;
+
+                });
+                tableCode = tableCode + "</table>"
+                $("#courseList").append(tableCode);
+                if (emptyCheck == true) {
+                    $("#courseList").append("No course created");
+                }
+            }
+        });
+    }
+
+    //add a course
+    function addCourse() {
+        var form = document.getElementById('addCourseForm');
+
+        if (form.courseCode.value.indexOf(' ') > -1|| form.courseCode.value.indexOf('`') > -1 || form.courseCode.value.indexOf('~') > -1 || form.courseCode.value.indexOf('!') > -1 || form.courseCode.value.indexOf('@') > -1 || form.courseCode.value.indexOf('#') > -1 || form.courseCode.value.indexOf('$') > -1 || form.courseCode.value.indexOf('%') > -1 || form.courseCode.value.indexOf('^') > -1 || form.courseCode.value.indexOf('&') > -1 || form.courseCode.value.indexOf('*') > -1 || form.courseCode.value.indexOf('(') > -1 || form.courseCode.value.indexOf(')') > -1 || form.courseCode.value.indexOf('-') > -1 || form.courseCode.value.indexOf('_') > -1 || form.courseCode.value.indexOf('+') > -1 || form.courseCode.value.indexOf('=') > -1 || form.courseCode.value.indexOf('[') > -1 || form.courseCode.value.indexOf(']') > -1 || form.courseCode.value.indexOf('|') > -1 || form.courseCode.value.indexOf('|') > -1 || form.courseCode.value.indexOf('\\') > -1 || form.courseCode.value.indexOf('"') > -1 || form.courseCode.value.indexOf('\'') > -1 || form.courseCode.value.indexOf(':') > -1 || form.courseCode.value.indexOf(';') > -1 || form.courseCode.value.indexOf('?') > -1 || form.courseCode.value.indexOf('/') > -1 || form.courseCode.value.indexOf('>') > -1 || form.courseCode.value.indexOf('<') > -1 || form.courseCode.value.indexOf(',') > -1 || form.courseCode.value.indexOf('.') > -1) {
+            alert("Course Code should only have letters and numbers");
+        } else if (form.title.value == "") {
+            alert("Please input title");
+        } else if (form.description.value == "") {
+            alert("Please input description");
+        } else {
+            $.ajax({
+                url: 'http://localhost:8000/courses/addCourse',
+                type: 'POST',
+                data: JSON.stringify({
+                    instructor: getCookie('staffId'),
+                    courseCode: form.courseCode.value,
+                    category: form.category.value,
+                    isPublished: false,
+                    title: form.title.value,
+                    description: form.description.value
+                }),
+                dataType: 'json',
+                beforeSend(xhr) {
+                    xhr.setRequestHeader("Content-Type","application/x-www-urlencoded");
+                },
+                success(result,status,xhr) {
+                    if (result.hasOwnProperty('failure'))
+                        alert(result.message);
+                    else {
+                        loadCourses();
+                        form.courseCode.value = "";
+                        form.category.value = "";
+                        form.title.value = "";
+                        form.description.value = "";
+                    }
+                }
+            });
+        }
+    }
+
+    //update course
+    function updateCourse() {
+        var form = document.getElementById('updateCourseForm');
+        if (form.courseCode.value.indexOf(' ') > -1|| form.courseCode.value.indexOf('`') > -1 || form.courseCode.value.indexOf('~') > -1 || form.courseCode.value.indexOf('!') > -1 || form.courseCode.value.indexOf('@') > -1 || form.courseCode.value.indexOf('#') > -1 || form.courseCode.value.indexOf('$') > -1 || form.courseCode.value.indexOf('%') > -1 || form.courseCode.value.indexOf('^') > -1 || form.courseCode.value.indexOf('&') > -1 || form.courseCode.value.indexOf('*') > -1 || form.courseCode.value.indexOf('(') > -1 || form.courseCode.value.indexOf(')') > -1 || form.courseCode.value.indexOf('-') > -1 || form.courseCode.value.indexOf('_') > -1 || form.courseCode.value.indexOf('+') > -1 || form.courseCode.value.indexOf('=') > -1 || form.courseCode.value.indexOf('[') > -1 || form.courseCode.value.indexOf(']') > -1 || form.courseCode.value.indexOf('|') > -1 || form.courseCode.value.indexOf('|') > -1 || form.courseCode.value.indexOf('\\') > -1 || form.courseCode.value.indexOf('"') > -1 || form.courseCode.value.indexOf('\'') > -1 || form.courseCode.value.indexOf(':') > -1 || form.courseCode.value.indexOf(';') > -1 || form.courseCode.value.indexOf('?') > -1 || form.courseCode.value.indexOf('/') > -1 || form.courseCode.value.indexOf('>') > -1 || form.courseCode.value.indexOf('<') > -1 || form.courseCode.value.indexOf(',') > -1 || form.courseCode.value.indexOf('.') > -1) {
+            alert("Course Code should only have letters and numbers");
+        } else if (form.title.value == "") {
+            alert("Please input title");
+        } else if (form.description.value == "") {
+            alert("Please input description");
+        } else {
+            $.ajax({
+                url: 'http://localhost:8000/courses/' + form.oldCourseCode.value + '/update_course_contents',
+                type: 'POST',
+                data: JSON.stringify({
+                    new_courseCode: form.courseCode.value,
+                    new_category: form.category.value,
+                    new_title: form.title.value,
+                    new_description: form.description.value
+                }),
+                dataType: 'json',
+                beforeSend(xhr) {
+                    xhr.setRequestHeader("Content-Type","application/x-www-urlencoded");
+                },
+                success(result,status,xhr) {
+                    if (result.hasOwnProperty('failure'))
+                        alert(result.message);
+                    else {
+                        loadCourses();
+                        form.oldCourseCode.value = "";
+                        form.courseCode.value = "";
+                        form.category.value = "";
+                        form.title.value = "";
+                        form.description.value = "";
+                        $('#addCourseButton').attr('class', 'btn btn-primary btn-block btn-lg');
+                        $('#updateCourseButton').attr('class', 'btn btn-block btn-lg');
+                        $('#addCourseFormHolder').show();
+                        $('#updateCourseFormHolder').hide();
+                    }
+                }
+            });
+        }
+    }
+
+    //publish a course
+    $('#courseList').on('click', 'button.publish', function() {
+        var courseCode = $(this).attr('rel');
+        $.ajax({
+            url: 'http://localhost:8000/courses/' + courseCode,
+            type: 'GET',
+            dataType: 'json',
+            success(result,status,xhr) {
+                $('#componentList').empty();
+                $('#componentContent').empty();
+                var noComponent = true;
+                $.each(result.modules, function(index, value) {
+                    if (value.components[0] != null) {
+                        noComponent = false;
+                    }
+                });
+                if (!noComponent) {
+                    cf = confirm("Please confirm that you want to publish this course");
+                    if (cf) {
+                        $.ajax({
+                            url: 'http://localhost:8000/courses/' + courseCode + '/publish',
+                            type: 'POST',
+                            dataType: 'json',
+                            beforeSend(xhr) {
+                                xhr.setRequestHeader("Content-Type","application/x-www-urlencoded");
+                            },
+                            success(result,status,xhr) {
+                                if (result.hasOwnProperty('failure'))
+                                    alert(result.message);
+                                else {
+                                    loadCourses();
+                                }
+                            }
+                        });
+                    }
+
+                } else
+                    alert('You cannot publish a course that has no component');
+            }
+        });
+    });
+
+    //remove a course
+    $('#courseList').on('click', 'button.remove', function() {
+        cf = confirm("Please confirm that you want to remove this course");
+        if (cf) {
+            $.ajax({
+                url: 'http://localhost:8000/courses/' + $(this).attr('rel') + '/remove',
+                type: 'POST',
+                dataType: 'json',
+                beforeSend(xhr) {
+                    xhr.setRequestHeader("Content-Type","application/x-www-urlencoded");
+                },
+                success(result,status,xhr) {
+                    if (result.hasOwnProperty('failure'))
+                        alert(result.message);
+                    else {
+                        loadCourses();
+                    }
+                }
+            });
+        }
+    });
+
+    //update course
+    $('#courseList').on('click', 'button.retake', function() {
+        var courseCode = $(this).attr('rel');
+
+        $('#updateCourseButton').attr('class', 'btn btn-primary btn-block btn-lg');
+        $('#addCourseButton').attr('class', 'btn btn-block btn-lg');
+        $('#updateCourseFormHolder').show();
+        $('#addCourseFormHolder').hide();
+
+        $('#updateCourseFormHeader').html("<b>["+courseCode+"] Update Course Information</b>");
+
+        $('#updateCourseFormHolder #oldCourseCode').val(courseCode);
+        $('#updateCourseFormHolder #theCoursecode').val($(this).attr('rel'));
+        $('#updateCourseFormHolder #theCategory').val($(this).attr('category'));
+        $('#updateCourseFormHolder #theTitle').val($(this).attr('title'));
+        $('#updateCourseFormHolder #theDesc').val($(this).attr('description'));
+
+    });
+
+    //*********************************
+    // MODULES
+    //*********************************
+
+    //display modules and components
+    function loadModules() {
+        $.ajax({
+            url: 'http://localhost:8000/courses/' + thisCourse,
+            type: 'GET',
+            dataType: 'json',
+            success(result,status,xhr) {
+                $("#moduleList").empty();
+                var emptyCheck = true;
+                $.each(result.modules, function(index, value) {
+                    $('#moduleList').append("<li class='ui-state-default' id='"+value.id+"'><span class='ui-icon ui-icon-arrowthick-2-n-s'></span><a href='#' rel='" + value.sequenceNumber + "' relId='" + value.id + "''><b>Module " + value.sequenceNumber + ": " + value.moduleTitle + "</b> - " + value.component_count + " components</a><div id='" + value.id + "'></div></li>");
+                    emptyCheck = false;
+                });
+                if (emptyCheck == true) {
+                    $('#moduleList').append("<p>No modules</p>");
+                }
+            }
+        });
+    }
+
+    // Update db after finishing reordering module
+    $(function() {
+        $('#moduleList').sortable({
+            update: function(event, ui) {
+                var IDs = $("#moduleList li[id]").map(function() { return this.id; }).get();
+                $.each(IDs, function(index, value) {
+                    IDs[index] = {"id":IDs[index],"sequenceNumber":+index};
+                });
+                $.ajax({
+                    url: 'http://localhost:8000/courses/' + thisCourse + '/update_module_order',
+                    type: 'POST',
+                    data: JSON.stringify({"module_sequences": IDs}),
+                    dataType: 'json',
+                    success(result,status,xhr) {
+                        if (result.hasOwnProperty('failure')){
+                            alert(result.message);
+                        }
+                        loadModules();
+                    }
+                });
+
+            }
+        });
+    });
+
+
+    //add modules
+    function addModule() {
+        var form = document.getElementById('addModuleForm');
+        $.ajax({
+            url: "http://localhost:8000/courses/" + thisCourse + "/addModule",
+            type: 'POST',
+            data: JSON.stringify({
+                moduleTitle: form.moduleTitle.value,
+                sequenceNumber: form.sequenceNumber.value
+            }),
+            dataType: 'json',
+            beforeSend(xhr) {
+                xhr.setRequestHeader("Content-Type","application/x-www-urlencoded");
+            },
+            success(result,status,xhr) {
+                if (result.hasOwnProperty('failure'))
+                    alert(result.message);
+                else {
+                    loadModules();
+                    form.moduleTitle.value = '';
+                    form.sequenceNumber.value = '';
+                }
+            }
+        });
+    }
+
+    //update modules
+    function updateModule() {
+        var form = document.getElementById('updateModule');
+        $.ajax({
+            url: 'http://localhost:8000/courses/' + thisCourse + '/modules/' + form.moduleNumber.value + '/update_content',
+            type: 'POST',
+            data: JSON.stringify({moduleTitle: form.moduleTitle.value}),
+            dataType: 'json',
+            beforeSend(xhr) {
+                xhr.setRequestHeader("Content-Type","application/x-www-urlencoded");
+            },
+            success(result,status,xhr) {
+                if (result.hasOwnProperty('failure'))
+                    alert(result.message);
+                else {
+                    loadModules();
+                    form.moduleTitle.value = '';
+                    form.moduleNumber.value = '';
+                }
+            }
+        });
+    }
+
+    //remove module
+    function removeModule() {
+        cf = confirm('Please confirm that you would like to remove this module.')
+        if (cf) {
+            var form = document.getElementById('removeModule');
+            $.ajax({
+                url: 'http://localhost:8000/courses/' + thisCourse + '/modules/' + form.moduleNumber.value + '/remove_module',
+                type: 'POST',
+                dataType: 'json',
+                beforeSend(xhr) {
+                    xhr.setRequestHeader("Content-Type","application/x-www-urlencoded");
+                },
+                success(result,status,xhr) {
+                    if (result.hasOwnProperty('failure'))
+                        alert(result.message);
+                    else {
+                        loadModules();
+                        form.moduleNumber.value = '';
+                    }
+                }
+            });
+        }
+    }
+
+    //*********************************
+    // COMPONENTS
+    //*********************************
+
+    function loadComponents() {
+        $.ajax({
+            url: 'http://localhost:8000/courses/' + thisCourse,
+            type: 'GET',
+            dataType: 'json',
+            success(result,status,xhr) {
+                $('#componentList').empty();
+                $('#componentContent').empty();
+                var emptyCheck = true;
+                $.each(result.modules, function(index, value) {
+                    if (value.id == thisModuleId) {
+                        $.each(value.components, function(index, data) {
+                            $('#componentList').append("<li class='ui-state-default' id='"+data.contentType+"|"+data.id+"'><span class='ui-icon ui-icon-arrowthick-2-n-s'></span><a href='#' rel='" + data.id + "' relOrder='" + data.order + "' ral='" + data.contentType + "'><b>Component " + data.order + ": " + data.contentTitle + "</b></a><div id='" + data.id + "'></div></li>");
+                            emptyCheck = false;
+                        });
+                    }
+                });
+                if (emptyCheck == true) {
+                    $('#componentList').append("No components added")
+                }
+            }
+        });
+    }
+
+    // Update db after finishing reordering comonents
+    $(function() {
+        $('#componentList').sortable({
+            update: function(event, ui) {
+                var cData = $("#componentList li[id]").map(function() { return this.id; }).get();
+                $.each(cData, function(index, value) {
+                    var input = cData[index].split("|");
+                    cData[index] = {"contentType":input[0],"component_id":input[1], "order":index};
+                });
+
+                var data = JSON.stringify({"component_sequences": cData});
+
+                $.ajax({
+                    url: 'http://localhost:8000/courses/' + thisCourse + '/modules/' + thisModule + '/update_component_order',
+                    type: 'POST',
+                    data: JSON.stringify({"component_sequences": cData}),
+                    dataType: 'json',
+                    success(result,status,xhr) {
+                        if (result.hasOwnProperty('failure')){
+                            alert(result.message);
+                        }
+                        loadComponents();
+                    }
+                });
+
+            }
+        });
+    });
+
+    //display component content
+    $('#viewComponents').on('click','li a', function() {
+        var thisComponentId = $(this).attr('rel');
+        var thisComponentOrder = $(this).attr('relOrder');
+        var contentType = $(this).attr('ral');
+        $.ajax({
+            url: 'http://localhost:8000/courses/' + thisCourse,
+            type: 'GET',
+            dataType: 'json',
+            success(result,status,xhr) {
+                $('#componentContent').empty();
+                $('#componentContent').append('<p style="text-align:left"><b>Component Content</b></p>')
+                $.each(result.modules, function(index, value) {
+                    if (value['id'] == thisModuleId){
+                        $.each(value.components, function(index, data) {
+                            if (data['order'] == thisComponentOrder) {
+                                if (contentType == 'text') {
+                                    $('#componentContent').append("<span>" + data.content + "</span><br><div style='text-align:left'><button rel='" + data.id + "' ral='" + contentType + "' type='button' class='btn btn-danger'>Remove This Component</button></div>");
+                                }
+                                else if (contentType == 'image') {
+                                    $('#componentContent').append("<img width='40%' src='http://127.0.0.1:8000/uploads/" + data.content + "' class='img-responsive' style='text-align:center'><br><div style='text-align:center'><button rel='" + data.id + "' ral='" + contentType + "' type='button' class='btn btn-danger'>Remove This Component</button></div>");
+                                }
+                                else if (contentType == 'video') {
+                                   $('#componentContent').append("<div style='text-align:center'><iframe width='560' height='315' src='" + data.content + "' frameborder='0' allowfullscreen></iframe></div><br><div style='text-align:center'><button rel='" + data.id + "' ral='" + contentType + "' type='button' class='btn btn-danger'>Remove This Component</button></div>");
+                                }
+                                else if (contentType == 'file') {
+                                    $('#componentContent').append("<a href='http://127.0.0.1:8000/uploads/" + data.content + "' download>Download File</a><br><div style='text-align:left'><button rel='" + data.id + "' ral='" + contentType + "' type='button' class='btn btn-danger'>Remove This Component</button></div>");
+                                }
+                            }
+                        });
+                    }
+
+                });
+            }
+        });
+    });
+
+    //remove a component
+    $('#componentContent').on('click','button', function() {
+        var thisComponentId = $(this).attr('rel');
+        var thisComponentOrder = $(this).attr('relOrder');
+        var contentType = $(this).attr('ral');
+        removeComponent(thisComponentId, contentType);
+    });
+
+    function removeComponent(thisComponentId, contentType) {
+        $.ajax({
+            url: 'http://localhost:8000/courses/' + thisCourse + '/modules/' + thisModule + '/components/' + thisComponentId + '/remove',
+            type: 'POST',
+            data: JSON.stringify({contentType : contentType}),
+            dataType: 'json',
+            beforeSend(xhr) {
+                xhr.setRequestHeader("Content-Type","application/x-www-urlencoded");
+            },
+            success(result,status,xhr) {
+                if (result.hasOwnProperty('failure'))
+                    alert(result.message);
+                else {
+                    loadComponents();
+                }
+            }
+
+        });
+    }
+
+    //upload file
+    function uploadFile() {
+        var form = document.getElementById('addComponentForm');
+        var form_data = new FormData();
+        form_data.append('upload', form.upload.files[0]);
+
+        $.ajax({
+            url: 'http://localhost:8000/courses/' + thisCourse + '/modules/' + thisModuleId + '/upload_component',
+            type: 'POST',
+            data: form_data,
+            processData: false,
+            contentType: false,
+            dataType: 'json',
+            success(result,status,xhr) {
+                if (result.hasOwnProperty('failure'))
+                    alert(result.message);
+                else
+                    requestAddComponent(result.file_path);
+            }
+        });
+    }
+
+    //send request to add component
+    function requestAddComponent(content) {
+        var form = document.getElementById('addComponentForm');
+        $.ajax({
+            url: "http://localhost:8000/courses/" + thisCourse + "/modules/" + thisModule + "/addComponent",
+            type: 'POST',
+            data: JSON.stringify({
+                order: form.order.value,
+                contentType: form.contentType.value,
+                content: content,
+                contentTitle: form.contentTitle.value
+            }),
+            dataType: 'json',
+            beforeSend(xhr) {
+                xhr.setRequestHeader("Content-Type","application/x-www-urlencoded");
+            },
+            success(result,status,xhr) {
+                if (result.hasOwnProperty('failure'))
+                    alert(result.message);
+                else {
+                    loadComponents();
+                    form.order.value = '';
+                    form.contentTitle.value = '';
+                    form.contentType.value = 'text';
+                    form.content.value = '';
+                    form.url.value = '';
+                    form.upload.value = '';
+                }
+            }
+        });
+    }
+
+    function addComponent() {
+        $('#componentContent').empty();
+        var form = document.getElementById('addComponentForm');
+        var videoUrl = form.url.value.replace("watch?v=", "embed/");
+        if (form.contentType.value == 'text') {
+            requestAddComponent(form.content.value);
+        }
+        else if (form.contentType.value == 'video') {
+            requestAddComponent(videoUrl);
+        }
+        else {
+            uploadFile();
+        }
+        
+        $('#addComponentButton').attr('class', 'btn btn-primary btn-block btn-lg');
+        $('#updateComponentButton').attr('class', 'btn btn-block btn-lg');
+        $('#addComponentFormHolderHeader').html("<b>Add Component</b>");
+        $('#addComponentFormButton').show();
+        $('#updateComponentFormButton').hide();
+
+        $('#uploadField').hide();
+        $('#videoInput').hide();
+        $('#textContent').show();
+
+    }
+            
+
+    function updateComponent() {
+        var form = document.getElementById('addComponentForm');
+        var thisComponentOrder = form.order.value;
+        var contentType = form.contentType.value;
+        $.ajax({
+            url: 'http://localhost:8000/courses/' + thisCourse,
+            type: 'GET',
+            dataType: 'json',
+            success(result,status,xhr) {
+                $('#componentContent').empty();
+                $.each(result.modules, function(index, value) {
+                    if (value.sequenceNumber == thisModule)
+                    $.each(value.components, function(index, data) {
+                        if (data.order == thisComponentOrder) {
+                            removeComponent(data.id, data.contentType);
+                            addComponent();
+                        }
+                    });
+                });
+            }
+        });
+
+        $('#addComponentButton').attr('class', 'btn btn-primary btn-block btn-lg');
+        $('#updateComponentButton').attr('class', 'btn btn-block btn-lg');
+        $('#addComponentFormHolderHeader').html("<b>Add Component</b>");
+        $('#addComponentFormButton').show();
+        $('#updateComponentFormButton').hide();
+        
+        $('#uploadField').hide();
+        $('#videoInput').hide();
+        $('#textContent').show();
+    }
+</script>
+
+{% endblock %}

@@ -1,0 +1,158 @@
+{% extends "staff/header.html" %}
+{% block content %}
+	<title>SDP</title>
+	<div class="container">
+		<div class="row main">
+			<div class="panel-heading">
+				<div class="panel-title text-center">
+					<h1 class="title">Staff Development Platform</h1>
+					</hr>
+				</div>
+			</div>
+			<div class="main-login main-center">
+				<form id="theForm">
+					<div id="theName" class="form-group">
+						<label for="fname" class="cols-sm-2 control-label">Name [Not Required]</label>
+						<div class="cols-sm-10">
+							<div class="input-group">
+								<span class="input-group-addon"><i class="fa-user fa" aria-hidden="true"></i></span>
+								<input type="text" class="form-control" name="fname" value="" placeholder="Enter your name"/>
+							</div>
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="username" class="cols-sm-2 control-label">Username</label>
+						<div class="cols-sm-10">
+							<div class="input-group">
+								<span class="input-group-addon"><i class="fa-users fa" aria-hidden="true"></i></span>
+								<input type="text" class="form-control" name="username" value="" placeholder="Enter your username"/>
+
+							</div>
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="password" class="cols-sm-2 control-label">Password</label>
+						<div class="cols-sm-10">
+							<div class="input-group">
+								<span class="input-group-addon"><i class="fa-lock fa-lg fa" aria-hidden="true"></i></span>
+								<input type="password" class="form-control" name="password" value="" placeholder="Enter your password"/>
+							</div>
+						</div>
+					</div>
+					<div id="registerPassword" class="form-group">
+						<label for="password2" class="cols-sm-2 control-label">Retype Password</label>
+						<div class="cols-sm-10">
+							<div class="input-group">
+								<span class="input-group-addon"><i class="fa-lock fa-lg fa" aria-hidden="true"></i></span>
+								<input type="password" class="form-control" name="password2" value="" placeholder="Enter your password again"/>
+							</div>
+						</div>
+					</div>
+					<div class="form-group">
+						<button id="login-registerBtn" type="button" onclick="login()" class="btn btn-primary btn-lg btn-block login-button">Login</button>
+						<span id="registerStatus"></span>
+						<span id="loginStatus"></span>
+					</div>
+					<div class="login-register" onclick="makeToRegister()">
+						<a id="switchLabel" href="#">Don't have an account? Click here to register!</a>
+					</div>
+
+				</form>
+
+	    <script type="text/javascript">
+	    	$(document).ready(function () {
+	    		$("#theName").hide();
+	    		$("#registerPassword").hide();
+	    	})
+	    	function login() {
+				var form = document.getElementById('theForm');
+	    		if (form.username.value != "" && form.password.value != "") {
+	            	var endpoint = "http://localhost:8000/staff/login";
+		            var data = {
+		                username: form.username.value,
+		                password: form.password.value,
+		            };
+
+		            var xmlHttp = new XMLHttpRequest();
+		            xmlHttp.onreadystatechange = function () {
+		                if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
+		                    response = JSON.parse(xmlHttp.responseText);
+		                    if (response.failure == null) {
+		                        var status = document.getElementById('loginStatus');
+		                        status.innerHTML = "";
+		                        setCookie('staffId',response.staffId,1);
+		                        window.location.href = "home";
+		                    } else {
+		                    	alert(response.message);
+		                    }
+		            	}
+	            	}
+		            xmlHttp.open("POST", endpoint, true);
+		            xmlHttp.setRequestHeader("Content-Type","application/x-www-urlencoded");
+		            xmlHttp.send(JSON.stringify(data));
+		            return false;
+		        } else {
+	            	alert("Login failed! Invalid Input");
+	        	}
+			}
+	        function register() {
+			    var form = document.getElementById('theForm');
+			    if (form.username.value != "" && form.password.value != "" && form.username.value != "username" && form.password.value != "password" && form.password2.value != "" && form.password2.value != "password") {
+			    	if (form.username.value.length == 8){
+			    		if (form.password.value == form.password2.value) {
+					        var endpoint = "http://localhost:8000/staff/register";
+					        var data = {
+					            username: form.username.value,
+					            password: form.password.value,
+					        };
+
+					        var xmlHttp = new XMLHttpRequest();
+					        xmlHttp.onreadystatechange = function () {
+					            if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
+					                response = JSON.parse(xmlHttp.responseText);
+					                if (response.hasOwnProperty('failure')){
+					                	alert(response.message);
+					                } else {
+					                    var status = document.getElementById('registerStatus');
+					                    status.innerHTML = "";
+					                    setCookie('staffId',response.id,1);
+					                    window.location.href = "home";
+					                }
+					            }
+					        }
+					        xmlHttp.open("POST", endpoint, true);
+					        xmlHttp.setRequestHeader("Content-Type","application/x-www-urlencoded");
+					        xmlHttp.send(JSON.stringify(data));
+					        return false;
+			        	} else {
+			                alert("Register failed! Password does not match!")
+			            }
+			        } else {
+			        	alert("Register failed! Username must be 8 character long!");
+			        }
+			    } else {
+			    	alert("Register failed! Please Fill Input!");
+			    }
+	        }
+
+	        function makeToRegister() {
+	        	$("#theName").show();
+	        	$("#registerPassword").show();
+	        	$("#login-registerBtn").attr("onclick","register()");
+				$("#login-registerBtn").text("Register");
+				$(".login-register").attr("onclick", "makeToLogin()");
+				$("#switchLabel").text("Already have an account? Click here to log in!");
+	        }
+
+	        function makeToLogin() {
+	    		$("#theName").hide();
+	    		$("#registerPassword").hide();
+		    	$("#login-registerBtn").attr("onclick","login()");
+		    	$("#login-registerBtn").text("Login");
+		    	$(".login-register").attr("onclick", "makeToRegister()");
+		   		$("#switchLabel").text("Don't have an account? Click here to register!");
+
+	        }
+	    </script>
+	</div>
+{% endblock %}
