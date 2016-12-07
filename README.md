@@ -10,71 +10,78 @@ For the AB credit bank of Hong Kong which supports staff development by offering
 
 **Step 1:** Install Python and Django (please refer to API Reference section for details of installation and setup)  
 **Step 2:** Install apps and dependencies.  
+    
 `pip install django-cors-headers`  
+  
 **Step 3:** Clone/download the project and run the server on the directory where the project is located.  
+    
 `python manage.py runserver`  
+  
 **Step 4:** Access the system via:  
-SDP Login: http://localhost:8000/staff or http://localhost:8000/staff/loginPage  
-SDP Dashboard: http://localhost:8000/staff/home  
-SDP Database: http://localhost:8000/admin  
-Default SDP application and database account:  
-	Username: root  
-	Password: root  
++ SDP Login: http://localhost:8000/staff or http://localhost:8000/staff/loginPage  
++SDP Dashboard: http://localhost:8000/staff/home   
++SDP Database: http://localhost:8000/admin  
++Default SDP application and database account:  
+	-Username: _root_  
+	-Password: _root_  
 
 # API Reference
 
-Python v3.5: https://docs.python.org/3/  
-Pip 9.0.1: https://pypi.python.org/pypi/pip  
-Django v1.10.2: https://pypi.python.org/pypi/pip  
-Django-cors-header: https://github.com/ottoyiu/django-cors-headers  
++Python v3.5: https://docs.python.org/3/  
++Pip 9.0.1: https://pypi.python.org/pypi/pip  
++Django v1.10.2: https://pypi.python.org/pypi/pip  
++Django-cors-header: https://github.com/ottoyiu/django-cors-headers  
 
 # Specification
 
 ## 1. Major functionalities
-**For instructor**  
-View, create, update, remove, and publish a course  
-View, create, update and remove modules of a course  
-View, create, update and remove components of a module  
-**For participant**  
-View, filter by category, and enroll in a course  
-View, complete or drop a course he/she is currently enrolled in  
-Revise or retake a completed course  
-**For administrator**
-Grant permissions to users (instructor, human resources or administrator)  
-Add or remove a category  
-**For human resource department**    
-View a list of courses completed by a participant  
-View a list of participants who have completed a certain course  
+### For instructor  
++View, create, update, remove, and publish a course  
++View, create, update and remove modules of a course  
++View, create, update and remove components of a module 
+
+### For participant 
++View, filter by category, and enroll in a course  
++View, complete or drop a course he/she is currently enrolled in  
++Revise or retake a completed course  
+
+### For administrator
++Grant permissions to users (instructor, human resources or administrator)  
++Add or remove a category  
+
+### For human resource department    
++View a list of courses completed by a participant  
++View a list of participants who have completed a certain course  
 
 ## 2. Restrictions met by the SDP
 ### Login
-Allow registration of new users  
-Require new users to use a 8-character username  
++Allow registration of new users  
++Require new users to use a 8-character username  
 
 ### Enrollment
-Each participant can only enroll in one course at a time  
-A staff cannot enroll in a course created by him/herself  
++Each participant can only enroll in one course at a time  
++A staff cannot enroll in a course created by him/herself  
 
-###Course completion
-A participant has to complete the modules in an order specified by the instructor  
-The course is marked as completed once all modules and components have been completed by the participant.  
+### Course completion
++A participant has to complete the modules in an order specified by the instructor  
++The course is marked as completed once all modules and components have been completed by the participant.  
 
 ### Course management
-Instructor cannot remove, update or add modules to a course that has already been published.  
-Instructor cannot remove, update or reorder modules of a course that has already been published.  
-Instructor cannot update or remove a published course.  
-Instructor cannot publish a course that has no component.  
++Instructor cannot remove, update or add modules to a course that has already been published.    
++Instructor cannot remove, update or reorder modules of a course that has already been published.  
++Instructor cannot update or remove a published course.  
++Instructor cannot publish a course that has no component.  
 
 ### Required categories  
-Required categories have been added and cannot be removed from the system.
++All required categories have been added and cannot be removed from the system.
 
 ### Content type  
-Components must be of type text, file, image or video; file and image require upload.  
-Texts, images and videos will be viewed directly within the SDP; files must be downloaded.  
++Components must be of type text, file, image or video; file and image require upload.  
++Texts, images and videos will be viewed directly within the SDP; files must be downloaded.  
 
 ## 3. Highlighted features
-Change the order of modules and components easily with drag-and-drop feature  
-Simple, intuitive and easy-to-use interface  
++Change the order of modules and components easily with drag-and-drop feature  
++Simple, intuitive and easy-to-use interface  
 
 # Limitations
 
