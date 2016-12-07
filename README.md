@@ -10,13 +10,13 @@ For the AB credit bank of Hong Kong which supports staff development by offering
 
 **Step 1:** Install Python and Django (please refer to API Reference section for details of installation and setup)  
 **Step 2:** Install apps and dependencies.  
-    
-pip install django-cors-headers  
-  
+
+	pip install django-cors-headers
+	
 **Step 3:** Clone/download the project and run the server on the directory where the project is located.  
-    
-python manage.py runserver  
-  
+
+	python manage.py runserver
+
 **Step 4:** Access the system via:  
 + SDP Login: http://localhost:8000/staff or http://localhost:8000/staff/loginPage  
 + SDP Dashboard: http://localhost:8000/staff/home   
