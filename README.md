@@ -54,9 +54,8 @@ For the AB credit bank of Hong Kong which supports staff development by offering
 + View a list of participants who have completed a certain course  
 
 ## 2. Restrictions met by the SDP
-### Login
-+ Allow registration of new users  
-+ Require new users to use a 8-character username  
+### Login 
++ Username must contain exactly 8 characters
 
 ### Enrollment
 + Each participant can only enroll in one course at a time  
@@ -72,11 +71,11 @@ For the AB credit bank of Hong Kong which supports staff development by offering
 + Instructor cannot update or remove a published course.  
 + Instructor cannot publish a course that has no component.  
 
-### Required categories  
-+ All required categories have been added and cannot be removed from the system.
+### Categories  
++ Required categories have been added and cannot be removed from the database.
 
 ### Content type  
-+ Components must be of type text, file, image or video; file and image require upload.  
++ Components must be of type text, file, image or embedded (Youtube) video; file and image need to be uploaded.  
 + Texts, images and videos will be viewed directly within the SDP; files must be downloaded.  
 
 ## 3. Highlighted features
